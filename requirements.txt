@@ -1,0 +1,5 @@
+jupyterlab
+pandas[performance, plot]
+pennylane
+autoray<0.8.0
+jax

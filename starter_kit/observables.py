@@ -2,12 +2,11 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-import numpy as np
+import jax.numpy as np
 
-
-I2 = np.eye(2, dtype=np.complex128)
-XMAT = np.array([[0.0, 1.0], [1.0, 0.0]], dtype=np.complex128)
-ZMAT = np.array([[1.0, 0.0], [0.0, -1.0]], dtype=np.complex128)
+I2 = np.eye(2, dtype=np.complex64)
+XMAT = np.array([[0.0, 1.0], [1.0, 0.0]], dtype=np.complex64)
+ZMAT = np.array([[1.0, 0.0], [0.0, -1.0]], dtype=np.complex64)
 
 
 def _kron_all(factors: list[np.ndarray]) -> np.ndarray:
@@ -39,15 +38,33 @@ def _expval_from_matrix(state: np.ndarray, matrix: np.ndarray) -> float:
 
 def order_parameter_summary(state: np.ndarray, n_qubits: int) -> dict[str, float]:
     """Compute simple finite-size observables for the Z/Z/X ANNNI convention."""
-    z_values = [_expval_from_matrix(state, _single_site_operator(n_qubits, i, "z")) for i in range(n_qubits)]
-    x_values = [_expval_from_matrix(state, _single_site_operator(n_qubits, i, "x")) for i in range(n_qubits)]
-    zz_nearest = [
-        _expval_from_matrix(state, _pair_operator(n_qubits, i, (i + 1) % n_qubits)) for i in range(n_qubits)
-    ]
-    zz_next = [
-        _expval_from_matrix(state, _pair_operator(n_qubits, i, (i + 2) % n_qubits)) for i in range(n_qubits)
-    ]
-    antiphase_string = [zz_nearest[i] * zz_nearest[(i + 2) % n_qubits] for i in range(n_qubits)]
+    z_values = np.array(
+        [
+            _expval_from_matrix(state, _single_site_operator(n_qubits, i, "z"))
+            for i in range(n_qubits)
+        ]
+    )
+    x_values = np.array(
+        [
+            _expval_from_matrix(state, _single_site_operator(n_qubits, i, "x"))
+            for i in range(n_qubits)
+        ]
+    )
+    zz_nearest = np.array(
+        [
+            _expval_from_matrix(state, _pair_operator(n_qubits, i, (i + 1) % n_qubits))
+            for i in range(n_qubits)
+        ]
+    )
+    zz_next = np.array(
+        [
+            _expval_from_matrix(state, _pair_operator(n_qubits, i, (i + 2) % n_qubits))
+            for i in range(n_qubits)
+        ]
+    )
+    antiphase_string = np.array(
+        [zz_nearest[i] * zz_nearest[(i + 2) % n_qubits] for i in range(n_qubits)]
+    )
 
     return {
         "z_mean": float(np.mean(z_values)),

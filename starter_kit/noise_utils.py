@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import numpy as np
 import pennylane as qml
 
 from .annni import build_annni_hamiltonian
@@ -25,8 +24,10 @@ def simple_noisy_energy(
     p: float,
     layers: int = 2,
 ) -> float:
-    """Evaluate a simple noisy ansatz against the ANNNI Hamiltonian."""
-    hamiltonian = build_annni_hamiltonian(n_qubits=n_qubits, kappa=kappa, h=h, periodic=True)
+    """Evaluate a simple noisy ansatz against the ANNNI Hamiltonian."""  # NOT WHAT WE WANT
+    hamiltonian = build_annni_hamiltonian(
+        n_qubits=n_qubits, kappa=kappa, h=h, periodic=True
+    )
     dev = qml.device("default.mixed", wires=n_qubits)
 
     @qml.qnode(dev)
